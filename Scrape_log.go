@@ -25,18 +25,18 @@ func main() {
 	var reg_pattern = regexp.MustCompile(log_pat)
 	wg := new(sync.WaitGroup)
 	file_name := make(chan string)
-	results := make(chan bool)
+	//results := make(chan bool)
 	go get_files(root, file_name, wg)
 	for i := range file_name {
 		wg.Add(1)
-		go read_file(i, results, wg, reg_pattern)
-  }
-	t_file := <-results
+		go read_file(i, wg, reg_pattern)
+  	}
+	//t_file := <-results
 	go func() {
 		wg.Wait()
-		if t_file {
+		/*if t_file {
 			close(results)
-		}
+		}*/
 	}()
 	elapsedTime := time.Since(start)
 	fmt.Println("Total Time For Execution: " + elapsedTime.String())
@@ -57,7 +57,7 @@ func get_files(root string, file_name chan<- string, wg *sync.WaitGroup) {
 	close(file_name)
 }
 
-func read_file(target_file string, results chan<- bool, wg *sync.WaitGroup, log_pat *regexp.Regexp) {
+func read_file(target_file string, wg *sync.WaitGroup, log_pat *regexp.Regexp) {
 	defer wg.Done()
 	file, err := os.Open(target_file)
 	if err != nil {
@@ -67,11 +67,11 @@ func read_file(target_file string, results chan<- bool, wg *sync.WaitGroup, log_
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		if log_pat.MatchString(scanner.Text()) {
-			if !strings.Contains(scanner.Text(), "/ping/ping.html") && !strings.Contains(scanner.Text(), "/ping/monitor.html") {
+			if !strings.Contains(scanner.Text(), "unwanted string in line") && !strings.Contains(scanner.Text(), "unwanted string in line") {
 				res := log_pat.FindAllStringSubmatch(scanner.Text(), -1)[0]
 				fmt.Println(res[1] + "," + res[2] + "," + res[3] + "," + res[4] + "," + res[5] + "," + res[6] + "," + res[7] + "," + res[9] + "," + res[10] + "," + res[11] + "," + res[12] + "," + res[13] + "," + target_file)
 			}
 		}
 	}
-	results <- true
+	//results <- true
 }
