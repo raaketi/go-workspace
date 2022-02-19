@@ -26,18 +26,20 @@ func main() {
 	wg := new(sync.WaitGroup)
 	file_name := make(chan string)
 	//results := make(chan bool)
+	wg.Add(1)
 	go get_files(root, file_name, wg)
 	for i := range file_name {
 		wg.Add(1)
 		go read_file(i, wg, reg_pattern)
   	}
+	wg.Wait()
 	//t_file := <-results
-	go func() {
-		wg.Wait()
+	//go func() {
+		//wg.Wait()
 		/*if t_file {
 			close(results)
 		}*/
-	}()
+	//}()
 	elapsedTime := time.Since(start)
 	fmt.Println("Total Time For Execution: " + elapsedTime.String())
 
