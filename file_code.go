@@ -48,11 +48,9 @@ func main() {
 	if jsonErr != nil {
 		log.Fatal(jsonErr)
 	}
-	var listinterface fav_foods
 	for _, b := range p {
 		// fmt.Println(b)
 		// fmt.Println(b.type())
-		listinterface = &b
-		fetch_fav_food(listinterface)
+		fetch_fav_food(&b)
 	}
 }
