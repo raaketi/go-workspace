@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+ 
+metadata:
+  name: football-deployment
+  namespace: default
+  labels:
+    app: football
+ 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: football
+  template:
+    metadata:
+      labels:
+        app: football
+    spec:
+      containers:
+        - name: golang
+          image: adi463/football:latest
+          ports:
+            - containerPort: 3000

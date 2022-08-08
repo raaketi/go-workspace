@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+ 
+metadata:
+  name: prometheus-config-map
+  namespace: default
+ 
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      scrape_timeout: 15s
+    scrape_configs:
+      - job_name: application-metrics
+        metrics_path: /metrics
+        kubernetes_sd_configs:
+        - role: endpoints
+        relabel_configs:
+        - action: labelmap
+          regex: __meta_kubernetes_service_label_(.+)
+        - source_labels: [__meta_kubernetes_namespace]
+          action: replace
+          target_label: namespace
+        - source_labels: [__meta_kubernetes_service_name]
+          action: replace
+          target_label: service 
+ 
+# Given that we exposed our applications as services, watch for any service
+# endpoints shipping Prometheus-format metrics with Kubernetes auto-discover
+# plugin kubernetes_sd_configs. If you want to ignore other services that expose
+# metrics via /metrics endpoint, a workaround is to change your application
+# metrics path to something else. e.g. /app/metrics
