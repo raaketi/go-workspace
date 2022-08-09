@@ -4,6 +4,10 @@ kind: Service
 metadata:
   name: football-service
   namespace: default
+  labels:
+    app: football
+    app.kubernetes.io/managed-by: Helm
+  
  
 spec:
   type: NodePort
@@ -12,4 +16,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
+      name: http-web
       targetPort: 3000

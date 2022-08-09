@@ -6,16 +6,23 @@ metadata:
   namespace: default
   labels:
     app: football
+    app.kubernetes.io/managed-by: Helm
  
 spec:
   replicas: 1
   selector:
     matchLabels:
       app: football
+      app.kubernetes.io/managed-by: Helm
   template:
     metadata:
+      annotations:
+        prometheus.io/path: "/metrics"
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "80"
       labels:
         app: football
+        app.kubernetes.io/managed-by: Helm
     spec:
       containers:
         - name: golang
