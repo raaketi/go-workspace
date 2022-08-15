@@ -1,4 +1,4 @@
-package constructinterface
+package paymentInterface
 
 import (
 	"fmt"
@@ -20,10 +20,6 @@ type Payment struct {
 	Paymethodinterface
 }
 
-type Paystruct struct {
-	PaymentName string
-}
-
 func (creditcard Creditcard) Pay() error {
 	fmt.Println("Payment selected is Creditcard" + creditcard.Name)
 	return nil
@@ -39,3 +35,13 @@ func NewPayment(payinterface Paymethodinterface) *Payment {
 		payinterface,
 	}
 }
+
+type PaymentexpInterface interface {
+	Paymethodinterface
+}
+
+// func ExpPayment(paytype *Paymethodinterface) *PaymentexpInterface {
+// 	return &PaymentexpInterface{
+// 		&paytype,
+// 	}
+// }

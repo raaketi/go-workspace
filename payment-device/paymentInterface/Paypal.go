@@ -1,4 +1,4 @@
-package constructinterface
+package paymentInterface
 
 import "fmt"
 

@@ -15,13 +15,9 @@ import (
 	clientcmd "k8s.io/client-go/tools/clientcmd"
 )
 
-type Object interface {
-	GetDeployments(clientset *kubernetes.Clientset, ctx context.Context, namespace string) ([]depV1.Deployment, error)
-}
-
-func GetDeployments(clientset *kubernetes.Clientset, ctx context.Context, namespace string) ([]depV1.Deployment, error) {
+func GetDeployments(clientset *kubernetes.Clientset, ctx context.Context, namespace string, v1 metav1.ListOptions) ([]depV1.Deployment, error) {
 	list, err := clientset.AppsV1().Deployments(namespace).
-		List(ctx, metav1.ListOptions{})
+		List(ctx, v1)
 	if err != nil {
 		return nil, err
 	}
