@@ -8,7 +8,7 @@ metadata:
   namespace: prometheus
 spec:
   endpoints:
-  - port: http-web
+  - port: http-prom-metrics
     path: /metrics
   namespaceSelector:
     any: true
