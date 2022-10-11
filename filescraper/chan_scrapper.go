@@ -54,6 +54,7 @@ func get_file_names(root string, file_name chan<- []string, wg *sync.WaitGroup) 
 		}
 		return nil
 	})
+	log.Printf("%d", len(file_ex_names))
 	file_name <- file_ex_names
 	if err != nil {
 		panic(err)
@@ -64,6 +65,7 @@ func parse_file(target_file chan []string, wg *sync.WaitGroup, log_pat *regexp.R
 	wg.Add(1)
 	defer wg.Done()
 	for _, v := range <-target_file {
+		log.Printf("started file %s ", v)
 		file, err := os.Open(v)
 		if err != nil {
 			log.Fatal(err)
