@@ -1,0 +1,17 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cronjobname
+  namespace: app-ns  # Replace this with your namespace if different
+spec:
+  schedule: "*/5 * * * *"  # This will not run since the cronjob is suspended
+  suspend: true  # Suspended cronjob (won't automatically create jobs)
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: sample-job
+              image: busybox
+              command: ["sh", "-c", "echo 'Job executed!' && sleep 30"]
+          restartPolicy: Never
