@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cronjobname
+  name: ssc-rolling-restart
   namespace: app-ns  # Replace this with your namespace if different
 spec:
   schedule: "*/5 * * * *"  # This will not run since the cronjob is suspended

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 
 	v1 "k8s.io/api/batch/v1"
@@ -31,6 +32,18 @@ func main() {
 		log.Fatalf("CRONJOB_NAME environment variable is not set")
 	}
 
+	// Read configurable wait time from environment variable (default to 20 minutes if not set)
+	waitTimeStr := os.Getenv("WAIT_TIME")
+	waitTime := 20 // default wait time in minutes
+	if waitTimeStr != "" {
+		var err error
+		waitTime, err = strconv.Atoi(waitTimeStr)
+		if err != nil {
+			log.Printf("Invalid WAIT_TIME value '%s', using default 20 minutes.\n", waitTimeStr)
+			waitTime = 20
+		}
+	}
+
 	// Load in-cluster Kubernetes configuration
 	config, err := rest.InClusterConfig()
 	if err != nil {
@@ -42,7 +55,7 @@ func main() {
 		log.Fatalf("Failed to create clientset: %v", err)
 	}
 
-	// Repeat the entire process every 20 minutes
+	// Repeat the entire process every configurable wait time
 	for {
 		log.Println("Starting job management cycle...")
 
@@ -68,7 +81,7 @@ func main() {
 			// If the job was completed (or not found), create a new job from the cronjob
 			if jobCompleted {
 				// Wait for 10 seconds after deletion before creating a new job
-				log.Println("Waiting for 10 seconds to check jobCompleted function...")
+				log.Println("Waiting for 10 seconds to ensure the job is fully deleted...")
 				time.Sleep(10 * time.Second) // Wait for 10 seconds
 
 				err = createJobFromCronJob(clientset, namespace, cronJobName, jobName)
@@ -84,9 +97,9 @@ func main() {
 			time.Sleep(5 * time.Second)
 		}
 
-		// Step 3: Wait for 20 minutes before repeating the cycle
-		log.Println("Waiting for 20 minutes before the next cycle...")
-		time.Sleep(20 * time.Minute) // Wait for 20 minutes before repeating the process
+		// Step 3: Wait for the configurable time before repeating the cycle
+		log.Printf("Waiting for %d minutes before the next cycle...\n", waitTime)
+		time.Sleep(time.Duration(waitTime) * time.Minute) // Use configurable wait time
 	}
 }
 
@@ -104,6 +117,7 @@ func checkCronJobExists(clientset *kubernetes.Clientset, namespace, cronJobName 
 }
 
 // checkAndDeleteJob checks if the job exists and is completed, then deletes it if necessary
+// with PropagationPolicy set to "Orphan" to leave the pods as orphaned.
 func checkAndDeleteJob(clientset *kubernetes.Clientset, namespace, jobName string) bool {
 	jobsClient := clientset.BatchV1().Jobs(namespace)
 
@@ -116,15 +130,15 @@ func checkAndDeleteJob(clientset *kubernetes.Clientset, namespace, jobName strin
 	// Check job status
 	for _, condition := range job.Status.Conditions {
 		if condition.Type == v1.JobComplete && condition.Status == "True" {
-			log.Printf("Job %s is completed. Deleting...\n", jobName)
-			deletePolicy := metav1.DeletePropagationBackground
+			log.Printf("Job %s is completed. Deleting the job but leaving pods as orphaned...\n", jobName)
+			deletePolicy := metav1.DeletePropagationOrphan
 			err := jobsClient.Delete(context.TODO(), jobName, metav1.DeleteOptions{
 				PropagationPolicy: &deletePolicy,
 			})
 			if err != nil {
 				log.Fatalf("Failed to delete job: %v", err)
 			}
-			log.Printf("Job %s deletion initiated.\n", jobName)
+			log.Printf("Job %s deletion initiated, leaving pods as orphaned.\n", jobName)
 			return true // Job was completed and deleted
 		}
 	}

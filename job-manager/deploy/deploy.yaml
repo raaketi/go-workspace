@@ -16,7 +16,7 @@ spec:
       serviceAccountName: vault-auth  
       containers:
         - name: job-manager
-          image: adi463/job-manager:2.0
+          image: adi463/job-manager:5.0
           imagePullPolicy: Always
           resources:
             requests:
@@ -29,6 +29,8 @@ spec:
             - name: NAMESPACE
               value: "app-ns"  # Replace with your namespace
             - name: JOB_NAME
-              value: "jobname"  # Replace with your job name
+              value: "appjob-lms"  # Replace with your job name
             - name: CRONJOB_NAME
-              value: "cronjobname"  # Replace with your cronjob name 
+              value: "appcronjob"  # Replace with your cronjob name 
+            - name: WAIT_TIME
+              value: "3"  
