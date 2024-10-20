@@ -29,8 +29,8 @@ spec:
             - name: NAMESPACE
               value: "app-ns"  # Replace with your namespace
             - name: JOB_NAME
-              value: "appjob-lms"  # Replace with your job name
+              value: "app-rolling-restart-lms"  # Replace with your job name
             - name: CRONJOB_NAME
-              value: "appcronjob"  # Replace with your cronjob name 
+              value: "app-rolling-restart"  # Replace with your cronjob name 
             - name: WAIT_TIME
               value: "3"  
